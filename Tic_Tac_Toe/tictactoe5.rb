@@ -217,5 +217,3 @@ loop do
 end
 
 prompt "Thanks for playing Tic Tac Toe! Good bye!"
-
-round_count('Player', score)

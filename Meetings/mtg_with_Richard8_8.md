@@ -1,3 +1,5 @@
+# Mastery based learning with Launch School
+
 Mastery based learning and curriculum of LS in terms of total value, life meaning, drive, passion, actual passion, true friendships - LS provides the fundamentals for these.  Goes beyond the SE career, a stepping stone to doing what I enjoy at work.  Once i Have the resources to dedicate to my life, friendships, focusing on the fundamentals, starting small, practice, practice, practice.  Find a wife (Richard) realize part of mastery is not all sunshine, will be BS, best chance of having set of long term satisfying relationships.  Narcissist can turn on the charm for one hour, can't pull that shit anymore.  Gotta be a good human.  Be kind. Practice that behaviour.  LS's philosophy is more valuable than any other curriculum that is out there.  Teaches me how to live life in the most satisfying way possible.  
 Don't do boot camps becuase people don't give a shit about me. Misalignment of incentives with other options.  
 

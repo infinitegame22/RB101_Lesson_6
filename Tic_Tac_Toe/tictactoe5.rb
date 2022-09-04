@@ -1,12 +1,12 @@
-require 'pry'
+require "pry"
 
-INITIAL_MARKER = ' '
-PLAYER_MARKER = 'X'
-COMPUTER_MARKER = 'O'
+INITIAL_MARKER = " "
+PLAYER_MARKER = "X"
+COMPUTER_MARKER = "O"
 
-WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
-                [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
-                [[1, 5, 9], [3, 5, 7]]              # diagonals
+WINNING_LINES =
+  [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # rows # cols
+    [[1, 5, 9], [3, 5, 7]] # diagonals
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -14,7 +14,7 @@ end
 
 # rubocop:disable Metrics/AbcSize
 def display_board(brd)
-  system 'clear'
+  system "clear"
   puts "You're a #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}."
   puts ""
   puts "     |     |"
@@ -42,22 +42,22 @@ def empty_squares(brd) # inspecting the board
   brd.keys.select { |num| brd[num] == INITIAL_MARKER } # returns an array
 end
 
-def joinor(array, punctuation = ',', conjunction = 'or')
-  string_output = ''
+def joinor(array, punctuation = ",", conjunction = "or")
+  string_output = ""
   array.map do |num|
-    if num == array[-1] 
-      string_output << conjunction + " #{num.to_s}"
+    if num == array[-1]
+      string_output << conjunction + " #{num}"
     elsif array.length == 2
-      string_output << "#{num} "
+      string_output << num.to_s
     else
-      string_output << "#{num.to_s}" + ', '
+      string_output << num.to_s + ", "
     end
   end
   string_output
 end
 
 def player_passes_piece!(brd) # modifying the board
-  square = ''
+  square = ""
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
     square = gets.chomp.to_i
@@ -71,13 +71,13 @@ end
 def computer_place_piece!(brd)
   square = nil
 
-  #offense
+  # offense
   WINNING_LINES.each do |line|
     square = at_risk_square(line, brd, COMPUTER_MARKER) #=> number
     break if square
   end
 
-  #defense
+  # defense
   if square == nil
     WINNING_LINES.each do |line|
       square = at_risk_square(line, brd, PLAYER_MARKER) #=> number
@@ -94,9 +94,7 @@ end
 
 def at_risk_square(line, brd, marker)
   if brd.values_at(*line).count(marker) == 2
-    brd.select{|k,v| line.include?(k) && v == INITIAL_MARKER }.keys.first
-    # `select` invoked on board and is passed the two parameters, k and v, 
-    # the `select` method is passed the result of the block where the `include?` method is invoked on the method parameter `line`
+    brd.select { |k, v| line.include?(k) && v == INITIAL_MARKER }.keys.first
   end
 end
 
@@ -120,58 +118,54 @@ def detect_winner(brd)
     #   return 'Computer'
     # end
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
-      return 'Player'
+      return "Player"
     elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
-      return 'Computer'
+      return "Computer"
     end
   end
   nil
 end
 
-score = {"Player" => 0, "Computer" => 0}
+score = { "Player" => 0, "Computer" => 0 }
 
 def round_count(string, score)
-  if string == 'Player'
-    score["Player"] += 1
-  end
-  if string == 'Computer'
-    score["Computer"] += 1
-  end
+  score["Player"] += 1 if string == "Player"
+  score["Computer"] += 1 if string == "Computer"
   if score["Player"] == 5 || score["Computer"] == 5
-      puts "Congratulations to #{string}!".center(50)
-      puts "The #{string} has reached 5 wins!".center(50)
-      puts "#{string} is the crown champion!".center(50)
-      puts "| *    *    * |".center(50)
-      puts "|**   ***   **|".center(50)
-      puts "|*************|".center(50)
-      puts "|*************|".center(50)
+    puts "Congratulations to #{string}!".center(50)
+    puts "The #{string} has reached 5 wins!".center(50)
+    puts "#{string} is the crown champion!".center(50)
+    puts "| *    *    * |".center(50)
+    puts "|**   ***   **|".center(50)
+    puts "|*************|".center(50)
+    puts "|*************|".center(50)
   end
 end
 
-# ASk the player who goes first. 
-# Then call the correct place piece method based off the user. 
+# ASk the player who goes first.
+# Then call the correct place piece method based off the user.
 
-# Input: User choice 
+# Input: User choice
 # Ouptut: Symbol
-def who_goes_first() 
+def who_goes_first
   prompt "Who do you want to go first? (computer/player/random)"
   loop do
     answer = gets.chomp
-    if answer.downcase == 'player'
+    if answer.downcase == "player"
       return :player
-    elsif answer.downcase == 'computer'
+    elsif answer.downcase == "computer"
       return :computer
-    elsif answer.downcase == 'random'
-      return [:computer, :player].sample
+    elsif answer.downcase == "random"
+      return %i(computer player).sample
     else
       puts "Please enter player, computer, or random."
     end
   end
-end 
+end
 
-# Input: :player, :choice 
+# Input: :player, :choice
 def take_turn(user_choice, board)
-  if user_choice == :player 
+  if user_choice == :player
     loop do
       display_board(board)
 
@@ -181,7 +175,7 @@ def take_turn(user_choice, board)
       computer_place_piece!(board)
       break if someone_won?(board) || board_full?(board)
     end
-  else 
+  else
     loop do
       computer_place_piece!(board)
       break if someone_won?(board) || board_full?(board)
@@ -192,9 +186,7 @@ def take_turn(user_choice, board)
       break if someone_won?(board) || board_full?(board)
     end
   end
-end 
-
-
+end
 
 loop do
   current_player = who_goes_first
@@ -213,7 +205,7 @@ loop do
 
   prompt "Play again? (y or n) The first to 5 games wins!"
   answer = gets.chomp
-  break unless answer.downcase == 'y' || answer.downcase == 'yes'
+  break unless answer.downcase == "y" || answer.downcase == "yes"
 end
 
 prompt "Thanks for playing Tic Tac Toe! Good bye!"

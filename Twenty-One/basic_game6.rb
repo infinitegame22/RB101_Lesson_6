@@ -1,9 +1,10 @@
 require "set"
 
+ROUNDS_TO_WIN = 5
 
 def initialize_deck()
   deck = {}
-  #two lists:
+
   card_value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
   card_type = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
   suits = ['H', 'D', 'S', 'C']
@@ -16,59 +17,20 @@ def initialize_deck()
   deck
 end
 
-def total(hand)# only calculating Ace
-  # assume hand is an array of cards
-  # represent each card with key from hash -> 'HA',
-  # every string in the hand array will have a value in the set
+def total(hand)
   hand_total = 0
   has_ace = false
-  hand.each do |card_key|
-    if DECK[card_key] == 1
+  hand.each do |card_key| # ['HA', 1]
+    if DECK[card_key] == 1 
       has_ace = true
     end
     hand_total += DECK[card_key]
   end
-  if hand_total + 10 <= 21
+  if has_ace && hand_total + 10 <= 21
     hand_total += 10
   end
   hand_total
 end
-
-# ace_count = 2
-# loop do
-#   if hand_total + 10 <= 21 && ace_count > 0
-#     hand_total += 10
-#     ace_count -= 1
-#   end
-#   break if hand_total + 10 > 21 || ace_count == 0
-# end
-
-# p total(['HA', 'S2']) == 13
-# p total(['HA', 'S9', 'CA']) == 21
-# p total(['DQ', 'S9']) == 19
-  # since Ace is a 1 by default
-# set of cards used already, check to see if we have used this already, 
-# if we haven't then pass it to the player and put it into the set
-# set is very efficient, set of keys -> auxiliary data structure to keep track of 
-# cards being used.
-# main game loop use a set
-
-# def main
-  
-# end
-
-# main
-# loop do
-#   puts "hit or stay?"
-#   answer = gets.chomp
-#   break if answer == 'stay' || busted?   # the busted? method is not shown
-# end
-
-
-# convert deck hash to an array
-# sample, will return a key
-
-# start of game - two cards to player and dealer
 
 def deal_hands!(number_of_cards, hand, used_cards) # start of game is 2
   number_of_cards.times do
@@ -81,8 +43,6 @@ def deal_hands!(number_of_cards, hand, used_cards) # start of game is 2
   end
 end # returns an array for hand with new card(s)
 
-# p deal_hands(2, [])
-# p deal_hands(10, [])
 def busted?(score)
   score > 21
 end
@@ -94,13 +54,13 @@ def game_over?(player_hand, dealer_hand)
   player_hand_score = total(player_hand)
   dealer_hand_score = total(dealer_hand)
 
-  if player_hand_score == 21  || busted?(dealer_hand_score)
+  if player_hand_score >= 21  || busted?(dealer_hand_score)
     puts "Player wins! Player's score is #{player_hand_score}."
     game_over = true
-  end
-  if dealer_hand_score == 21 || busted?(player_hand_score)
+  elsif dealer_hand_score >= 21 || busted?(player_hand_score)
     puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
     game_over = true
+  
   end
   if game_over
     puts "Dealer: #{dealer_hand}"
@@ -110,13 +70,41 @@ def game_over?(player_hand, dealer_hand)
   game_over # returns true/false value
 end
 
+def game_over_computer?(player_hand, dealer_hand)
+  game_over = false
+  
+  player_hand_score = total(player_hand)
+  dealer_hand_score = total(dealer_hand)
+
+  if player_hand_score == dealer_hand_score
+    game_over = true
+    puts game_over
+  elsif player_hand_score == 21  || busted?(dealer_hand_score)
+    puts "Player wins! Player's score is #{player_hand_score}."
+    game_over = true
+  elsif dealer_hand_score == 21 || busted?(player_hand_score)
+    puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
+    game_over = true
+  end
+  if game_over
+    display_hand(player_hand, dealer_hand)
+  end
+
+  game_over # returns true/false value
+end
+
 def play_again
   print "Would you like to play again? (y/n)"
   answer = gets.chomp
   if answer.downcase == 'y' || answer.downcase == 'yes'
-    main # recursive, needs fix
+    return true
   end
-  exit
+  false 
+end
+
+def display_hand(player_hand, dealer_hand)
+  puts "Player hand is: #{player_hand}"
+  puts "Dealer hand is: #{dealer_hand}"
 end
 
 # what happens if each player gets 21 on the first deal?
@@ -126,51 +114,65 @@ def hit_or_stay(player_hand, dealer_hand, used_cards)
   loop do
     puts "hit or stay?"
     answer = gets.chomp
-    if answer == 'hit'
+    if answer.downcase == 'hit' || answer.downcase == 'h'
       deal_hands!(1, player_hand, used_cards)
       if game_over?(player_hand, dealer_hand)
-        play_again
+        return 
       end
-    end
-    if answer == 'stay'
       puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
-      break
+    end
+    if answer.downcase == 'stay' || answer.downcase == 's'
+      puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
+      return
     end
   end
 end
 
 def computer_hit_or_stay(dealer_hand, player_hand, used_cards)
-  while total(dealer_hand) < total(player_hand) && <= 21
+  while total(dealer_hand) < total(player_hand) && total(dealer_hand) <= 17
     deal_hands!(1, dealer_hand, used_cards)
     if game_over?(player_hand, dealer_hand)
-      play_again
+      return 
     end
   end
 end
+
+
+# Tyler Frye's awesome method
+def game_winner?(player_wins, dealer_wins)
+  player_wins >= ROUNDS_TO_WIN || dealer_wins >= ROUNDS_TO_WIN
+end
+
+# 21 -
 
 DECK = initialize_deck
 
 #game loop
 def main
-  used_cards = Set[]
-  player_hand = []
-  dealer_hand =[]
+  player_wins = 0
+  dealer_wins = 0
+  
+  loop do 
+    used_cards = Set[]
+    player_hand = []
+    dealer_hand =[]
 
-  deal_hands!(2, player_hand, used_cards)
-  deal_hands!(2, dealer_hand, used_cards)
+    deal_hands!(2, player_hand, used_cards)
+    deal_hands!(2, dealer_hand, used_cards)
+    display_hand(player_hand, dealer_hand)
 
-  player_hand_score = total(player_hand)
-  dealer_hand_score = total(dealer_hand)
+    player_hand_score = total(player_hand)
+    dealer_hand_score = total(dealer_hand)
 
-  if game_over?(player_hand, dealer_hand)
-    play_again # recursive, needs fix
-  end
-
-  hit_or_stay(player_hand, dealer_hand, used_cards)
-
-  computer_hit_or_stay()
-
-
+    hit_or_stay(player_hand, dealer_hand, used_cards)
+    computer_hit_or_stay(dealer_hand, player_hand, used_cards)
+    break if !play_again 
+    
+  end 
 end
 
+
+
 main
+
+

@@ -1,6 +1,5 @@
 require "set"
 
-
 def initialize_deck()
   deck = {}
   #two lists:
@@ -22,13 +21,13 @@ def total(hand)# only calculating Ace
   # every string in the hand array will have a value in the set
   hand_total = 0
   has_ace = false
-  hand.each do |card_key|
-    if DECK[card_key] == 1
+  hand.each do |card_key| # ['HA', 1]
+    if DECK[card_key] == 1 
       has_ace = true
     end
     hand_total += DECK[card_key]
   end
-  if hand_total + 10 <= 21
+  if has_ace && hand_total + 10 <= 21
     hand_total += 10
   end
   hand_total
@@ -97,8 +96,33 @@ def game_over?(player_hand, dealer_hand)
   if player_hand_score == 21  || busted?(dealer_hand_score)
     puts "Player wins! Player's score is #{player_hand_score}."
     game_over = true
+  elsif dealer_hand_score == 21 || busted?(player_hand_score)
+    puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
+    game_over = true
+  
   end
-  if dealer_hand_score == 21 || busted?(player_hand_score)
+  if game_over
+    puts "Dealer: #{dealer_hand}"
+    puts "Player: #{player_hand}"
+  end
+
+  game_over # returns true/false value
+end
+
+
+def game_over_computer?(player_hand, dealer_hand)
+  game_over = false
+  
+  player_hand_score = total(player_hand)
+  dealer_hand_score = total(dealer_hand)
+
+  if player_hand_score == dealer_hand_score
+    game_over = true
+    puts game_over
+  elsif player_hand_score == 21  || busted?(dealer_hand_score)
+    puts "Player wins! Player's score is #{player_hand_score}."
+    game_over = true
+  elsif dealer_hand_score == 21 || busted?(player_hand_score)
     puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
     game_over = true
   end
@@ -114,9 +138,9 @@ def play_again
   print "Would you like to play again? (y/n)"
   answer = gets.chomp
   if answer.downcase == 'y' || answer.downcase == 'yes'
-    main # recursive, needs fix
+    return true
   end
-  exit
+  false 
 end
 
 # what happens if each player gets 21 on the first deal?
@@ -129,48 +153,88 @@ def hit_or_stay(player_hand, dealer_hand, used_cards)
     if answer == 'hit'
       deal_hands!(1, player_hand, used_cards)
       if game_over?(player_hand, dealer_hand)
-        play_again
+        return 
       end
+      puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
     end
     if answer == 'stay'
       puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
-      break
+      return
     end
   end
 end
 
 def computer_hit_or_stay(dealer_hand, player_hand, used_cards)
-  while total(dealer_hand) < total(player_hand) && <= 21
+  while total(dealer_hand) < total(player_hand) && total(dealer_hand) <= 17
     deal_hands!(1, dealer_hand, used_cards)
     if game_over?(player_hand, dealer_hand)
-      play_again
+      return 
     end
   end
 end
+
+# 21 -
 
 DECK = initialize_deck
 
 #game loop
 def main
-  used_cards = Set[]
-  player_hand = []
-  dealer_hand =[]
 
-  deal_hands!(2, player_hand, used_cards)
-  deal_hands!(2, dealer_hand, used_cards)
+  loop do 
+    used_cards = Set[]
+    player_hand = []
+    dealer_hand =[]
 
-  player_hand_score = total(player_hand)
-  dealer_hand_score = total(dealer_hand)
+    deal_hands!(2, player_hand, used_cards)
+    deal_hands!(2, dealer_hand, used_cards)
 
-  if game_over?(player_hand, dealer_hand)
-    play_again # recursive, needs fix
-  end
+    player_hand_score = total(player_hand)
+    dealer_hand_score = total(dealer_hand)
 
-  hit_or_stay(player_hand, dealer_hand, used_cards)
+    #break if game_over?(player_hand, dealer_hand) && !play_again
 
-  computer_hit_or_stay()
-
-
+    hit_or_stay(player_hand, dealer_hand, used_cards)
+    computer_hit_or_stay(dealer_hand, player_hand, used_cards)
+    break if !play_again 
+    
+  end 
 end
 
+
+
 main
+
+# def total(hand)# only calculating Ace [[][]] [['HA', 1]]
+#   # assume hand is an array of cards
+#   # represent each card with key from hash -> 'HA',
+#   # every string in the hand array will have a value in the set
+#   hand_total = 0
+#   has_ace = false
+#   hand.each do |(card_key, _ )|
+#     if DECK[card_key] == 1 # {'HA' => 1, 'HK' => 10 } DECK['HA']
+#       has_ace = true
+#     end
+#     hand_total += DECK[card_key]
+#   end
+#   if hand_total + 10 <= 21
+#     hand_total += 10
+#   end
+#   hand_total
+# end
+
+# def deal_hands!(number_of_cards, hand, used_cards) # start of game is 2
+#   number_of_cards.times do
+#     card = DECK.to_a.sample # {'HA' => 1, 'HK' => 10 } == [['HA', 1],['HK', 10]]
+#     while used_cards.include?(card[0])
+#       card = DECK.to_a.sample
+#     end
+#     hand << card[0] #['HA', 1]
+#     used_cards.add(card[0])
+#   end
+# end # returns an array for hand with new card(s)
+
+# # p deal_hands(2, [])
+# # p deal_hands(10, [])
+# def busted?(score)
+#   score > 21
+# end

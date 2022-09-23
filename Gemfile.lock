@@ -7,8 +7,8 @@ GEM
       language_server-protocol
       sorbet-runtime
       syntax_tree (>= 2.4)
-    sorbet-runtime (0.5.10399)
-    syntax_tree (3.5.0)
+    sorbet-runtime (0.5.10455)
+    syntax_tree (3.6.0)
       prettier_print
 
 PLATFORMS

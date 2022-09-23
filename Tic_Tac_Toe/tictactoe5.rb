@@ -38,7 +38,7 @@ def initialize_board
   new_board
 end #=> {1 => ' ', 2 => ' ', 3 => ' '...}
 
-def empty_squares(brd) # inspecting the board
+def empty_squares(brd)
   brd.keys.select { |num| brd[num] == INITIAL_MARKER } # returns an array
 end
 
@@ -103,20 +103,11 @@ def board_full?(brd)
 end
 
 def someone_won?(brd)
-  !!detect_winner(brd) # bangs turn this into a boolean
+  !!detect_winner(brd)
 end
 
 def detect_winner(brd)
   WINNING_LINES.each do |line|
-    # if brd[line[0]] == PLAYER_MARKER &&
-    #    brd[line[1]] == PLAYER_MARKER &&
-    #    brd[line[2]] == PLAYER_MARKER
-    #   return 'Player'
-    # elsif brd[line[0]] == COMPUTER_MARKER &&
-    #       brd[line[1]] == COMPUTER_MARKER &&
-    #       brd[line[2]] == COMPUTER_MARKER
-    #   return 'Computer'
-    # end
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
       return "Player"
     elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
@@ -142,11 +133,6 @@ def round_count(string, score)
   end
 end
 
-# ASk the player who goes first.
-# Then call the correct place piece method based off the user.
-
-# Input: User choice
-# Ouptut: Symbol
 def who_goes_first
   prompt "Who do you want to go first? (computer/player/random)"
   loop do

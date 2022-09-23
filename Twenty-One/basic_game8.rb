@@ -10,7 +10,9 @@ def welcome_message
   system 'clear'
   prompt "You have begun a game of 21!"
   prompt "1st player to 5 games wins!"
-  prompt ""
+  prompt "Press Enter to continue..."
+  gets.chomp
+  
 end
 
 
@@ -41,6 +43,7 @@ def total(hand)
 end
 
 def deal_hands!(number_of_cards, hand, used_cards) # start of game is 2
+  system 'clear'
   number_of_cards.times do
     card = DECK.to_a.sample
     card = DECK.to_a.sample while used_cards.include?(card[0])
@@ -60,11 +63,15 @@ def game_over?(player_hand, dealer_hand, both_turns_completed = false)
   dealer_hand_score = total(dealer_hand)
 
   if player_hand_score == 21 || busted?(dealer_hand_score)
+    system 'clear'
     puts "Player wins! Player's score is #{player_hand_score}."
     game_over = true
+    
   elsif dealer_hand_score == 21 || busted?(player_hand_score)
+    system 'clear'
     puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
     game_over = true
+
   elsif both_turns_completed
     if player_hand_score < dealer_hand_score
       puts "Dealer wins!! The dealer's score is #{dealer_hand_score}."
@@ -73,6 +80,7 @@ def game_over?(player_hand, dealer_hand, both_turns_completed = false)
     end
     game_over = true
   end
+
   if game_over
     puts "Dealer: #{dealer_hand}"
     puts "Player: #{player_hand}"
@@ -126,6 +134,7 @@ def hit_or_stay(player_hand, dealer_hand, used_cards)
       puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
       return if game_over?(player_hand, dealer_hand)
     end
+
     if answer.downcase == "stay" || answer.downcase == "s"
       puts "Your hand is: #{player_hand}. Your score is #{total(player_hand)}."
       return
@@ -134,7 +143,8 @@ def hit_or_stay(player_hand, dealer_hand, used_cards)
 end
 
 def computer_hit_or_stay(dealer_hand, player_hand, used_cards)
-  return "Game over." if game_over?(player_hand, dealer_hand)
+  return p ("Game over.") if game_over?(player_hand, dealer_hand)
+
   puts "Dealer's hand is: #{dealer_hand}. Dealer's score is #{total(dealer_hand)}."
   while total(dealer_hand) < total(player_hand) && total(dealer_hand) <= 17
     deal_hands!(1, dealer_hand, used_cards)
@@ -152,26 +162,39 @@ end
 
 DECK = initialize_deck
 
+def deal_hands_to_both_players(player_hand, dealer_hand, used_cards) 
+  deal_hands!(2, player_hand, used_cards)
+  deal_hands!(2, dealer_hand, used_cards)
+  display_hand(player_hand, dealer_hand)
+end 
+
+
 #game loop
 def main
-  player_wins = 0
-  dealer_wins = 0
+  # To be implemented 
+  # player_wins = 0
+  # dealer_wins = 0
   welcome_message
 
   loop do
-    used_cards = Set[]
+    used_cards = Set[] 
     player_hand = []
     dealer_hand = []
 
-    deal_hands!(2, player_hand, used_cards)
-    deal_hands!(2, dealer_hand, used_cards)
-    display_hand(player_hand, dealer_hand)
+    deal_hands_to_both_players(player_hand, dealer_hand, used_cards) 
 
     player_hand_score = total(player_hand)
     dealer_hand_score = total(dealer_hand)
-
+    
     hit_or_stay(player_hand, dealer_hand, used_cards)
+      # [1, 10], 11 
+      # [1,10, 10], 21 
+      # If the player busts, then what happens? 
+
+      # Player: 17
     computer_hit_or_stay(dealer_hand, player_hand, used_cards)
+      # 
+      # Dealer's Score: 
 
     break if !play_again
   end

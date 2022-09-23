@@ -10,7 +10,7 @@ def welcome_message
   system 'clear'
   prompt "You have begun a game of 21!"
   prompt "1st player to 5 games wins!"
-  prompt ""
+  prompt "sasdf"
 end
 
 
@@ -41,6 +41,7 @@ def total(hand)
 end
 
 def deal_hands!(number_of_cards, hand, used_cards) # start of game is 2
+  system 'clear'
   number_of_cards.times do
     card = DECK.to_a.sample
     card = DECK.to_a.sample while used_cards.include?(card[0])
@@ -60,9 +61,11 @@ def game_over?(player_hand, dealer_hand, both_turns_completed = false)
   dealer_hand_score = total(dealer_hand)
 
   if player_hand_score == 21 || busted?(dealer_hand_score)
+    system 'clear'
     puts "Player wins! Player's score is #{player_hand_score}."
     game_over = true
   elsif dealer_hand_score == 21 || busted?(player_hand_score)
+    system 'clear'
     puts "Dealer wins! Dealer's score is #{dealer_hand_score}."
     game_over = true
   elsif both_turns_completed

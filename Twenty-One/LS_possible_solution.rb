@@ -1,5 +1,5 @@
-SUITS = %w[H D S C]
-VALUES = %w[2 3 4 5 6 7 8 9 10 J Q K]
+SUITS = ['H', 'D', 'S', 'C']
+VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -10,15 +10,14 @@ def initialize_deck
 end
 
 def total(cards)
-  # cards = ['H', '3'], ['S', 'Q', ...]
+  # cards = [['H', '3'], ['S', 'Q']]
   values = cards.map { |card| card[1] }
 
   sum = 0
   values.each do |value|
     if value == "A"
       sum += 11
-    elsif value.to_i == 0
-      # J, Q, K
+    elsif value.to_i == 0 # J, K, K
       sum += 10
     else
       sum += value.to_i
@@ -26,7 +25,9 @@ def total(cards)
   end
 
   # correct for Aces
-  values.select { |value| value == "A" }.count.times { sum -= 10 if sum > 21 }
+  values.select { |value| value == "A" }.count.times do
+    sum -= 10 if sum > 21
+  end
 
   sum
 end
@@ -36,10 +37,7 @@ def busted?(cards)
 end
 
 # :tie, :dealer, :player, :dealer_busted, :player_busted
-def detect_result(dealer_cards, player_cards)
-  player_total = total(player_cards)
-  dealer_total = total(dealer_cards)
-
+def detect_result(player_total, dealer_total)
   if player_total > 21
     :player_busted
   elsif dealer_total > 21
@@ -53,8 +51,8 @@ def detect_result(dealer_cards, player_cards)
   end
 end
 
-def display_result(dealer_cards, player_cards)
-  result = detect_result(dealer_cards, player_cards)
+def display_result(dealer_total, player_total)
+  result = detect_result(dealer_total, player_total)
 
   case result
   when :player_busted
@@ -71,11 +69,13 @@ def display_result(dealer_cards, player_cards)
 end
 
 def play_again?
-  puts "-------------"
+  puts "------------"
   prompt "Do you want to play again? (y or n)"
   answer = gets.chomp
-  answer.downcase.start_with?("y")
+  answer.downcase.start_with?('y')
 end
+
+
 
 loop do
   prompt "Welcome to Twenty-One!"
@@ -91,8 +91,11 @@ loop do
     dealer_cards << deck.pop
   end
 
+  player_total = total(player_cards)
+  dealer_total = total(dealer_cards)
+
   prompt "Dealer has #{dealer_cards[0]} and ?"
-  prompt "You have: #{player_cards[0]} and #{player_cards[1]}, for a total of #{total(player_cards)}."
+  prompt "You have: #{player_cards[0]} and #{player_cards[1]}, for a total of #{player_total}."
 
   # player turn
   loop do
@@ -100,54 +103,54 @@ loop do
     loop do
       prompt "Would you like to (h)it or (s)tay?"
       player_turn = gets.chomp.downcase
-      break if %w[h s].include?(player_turn)
+      break if ['h', 's'].include?(player_turn)
       prompt "Sorry, must enter 'h' or 's'."
     end
 
-    if player_turn == "h"
+    if player_turn == 'h'
       player_cards << deck.pop
       prompt "You chose to hit!"
       prompt "Your cards are now: #{player_cards}"
-      prompt "Your total is now: #{total(player_cards)}"
+      player_total = total(player_cards)
+      prompt "Your total is now: #{player_total}"
     end
 
-    break if player_turn == "s" || busted?(player_cards)
+    break if player_turn == 's' || busted?(player_cards)
   end
 
   if busted?(player_cards)
-    display_result(dealer_cards, player_cards)
+    display_result(dealer_total, player_total)
     play_again? ? next : break
   else
-    prompt "You stayed at #{total(player_cards)}"
+    prompt "You stayed at #{player_total}"
   end
 
   # dealer turn
   prompt "Dealer turn..."
 
   loop do
-    break if total(dealer_cards) >= 17
+    break if dealer_total >= 17
 
     prompt "Dealer hits!"
     dealer_cards << deck.pop
     prompt "Dealer's cards are now: #{dealer_cards}"
+    dealer_total = total(dealer_cards)
   end
 
   if busted?(dealer_cards)
-    prompt "Dealer total is now: #{total(dealer_cards)}"
-    display_result(dealer_cards, player_cards)
+    prompt "Dealer total is now: #{dealer_total}"
+    display_result(dealer_total, player_total)
     play_again? ? next : break
   else
-    prompt "Dealer stays at #{total(dealer_cards)}"
+    prompt "Dealer stays at #{dealer_total}"
   end
 
+  puts "============"
+  prompt "Dealer has #{dealer_cards}, for a total of: #{dealer_total}"
+  prompt "Player has #{player_cards}, for a total of: #{player_total}"
+  puts "============"
 
-  # both player and dealer stays - compare cards!
-  puts "=============="
-  prompt "Dealer has #{dealer_cards}, for a total of: #{total(dealer_cards)}"
-  prompt "Player has #{player_cards}, for a total of: #{total(player_cards)}"
-  puts "=============="
-
-  display_result(dealer_cards, player_cards)
+  display_result(dealer_total, player_total)
 
   break unless play_again?
 end
